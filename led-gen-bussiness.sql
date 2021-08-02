@@ -35,7 +35,7 @@ GROUP BY MONTHNAME(sites.created_datetime), YEAR(sites.created_datetime);
 
 
 -- 6 ¿Qué consulta ejecutaría para obtener una lista de nombres de clientes y el número total de clientes potenciales que hemos generado para cada uno de nuestros clientes entre el 1 de enero de 2011 y el 31 de diciembre de 2011?
--- SELECT .client_id,CONCAT(clients.first_name," ", clients.last_name) as client_name
+-- SELECT .client_id,CONCAT(clients.first_name," ", clients.last_name) as client_name***** Revisar mas tarde
 
 Select CONCAT(clients.first_name," ", clients.last_name) As client_name,
 COUNT(leads.leads_id) as number_of_leads
@@ -61,13 +61,33 @@ LEFT JOIN sites ON clients.id=sites.clients_id
 LEFT JOIN leads ON sites.id=leads.sites_id 
 WHERE leads.registered_datetime BETWEEN '2011/01/01' and '2011/06/30'
 
--- la correcta es la de abajo
+-- la correcta es la de abajo, puros inventos míos aca
 select CONCAT(a.first_name," ",a.last_name) as client_name, COUNT(c.leads_id) as number_of_leads, monthname(c.registered_datetime)
 from clients a JOIN sites b on a.client_id=b.client_id JOIN leads c on b.site_id=c.site_id
 where c.registered_datetime between '2011/01/01' and '2011/06/30'
 GROUP by client_name, c.leads_id
 ORDER BY c.registered_datetime;
 GROUP BY leads.id;
+
+/*8 */
+select CONCAT(a.first_name," ",a.last_name) as client_name, b.domain_name, count(b.site_id) number_of_leads
+from clients a LEFT JOIN sites b on a.client_id=b.client_id LEFT JOIN leads c on b.site_id=c.site_id
+group by client_name, b.domain_name
+order by client_name;
+
+
+
+/*9*/
+select CONCAT(a.first_name," ",a.last_name) as client_name, sum(b.amount) as total_revenue, monthname(b.charged_datetime) as month_charge, year(b.charged_datetime) as year_charge
+from clients a JOIN billing b on a.client_id = b.client_id
+group by client_name, month_charge, year_charge
+order by a.client_id;
+
+
+/*10*/
+select CONCAT(a.first_name," ",a.last_name) as client_name, group_concat( distinct b.domain_name order by b.domain_name separator ' / ' ) as websites
+from clients a LEFT JOIN sites b on a.client_id = b.client_id
+group by client_name
 
 
 
